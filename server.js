@@ -39,38 +39,24 @@ app.get("/", (req, res) => {
 	res.sendFile(process.cwd() + "/index.html");
 });
 
-app.get("/api", (req,res) => {
+app.get("/api/application", (req,res) => {
 	var storeData = [];
-	points.aggregate([{$group: {$sum: "$points"}},
-			{$lookup: {from: "apps", localField: "applicationId", foreignField: "_id", as: "allPoints"}}
-	]).then(result => {
-		for(let i = 0;i < result.length;i++){
-			storeData.push([result[i].allPoints[0]._id, result[i].allPoints[0].type, result[i].allPoints[0].name, result[i].allPoints[0].meta.platform, result[i].points]);
-		}
-		res.json(result);
-	}).catch(err => {res.json({"message": "error"})});
+	points.aggregate([{$lookup: {from: "apps", localField: "applicationId", foreignField:"_id", as:"point"}},
+	{$group: {_id: "$point", totalPoints: {$sum: "$points"}}},
+	{$project: {"_id._id": 1, "_id.name": 1,"_id.meta.platform": 1, totalPoints: 1}},
+	{$sort:{totalPoints: -1}}
+	]).then(result => {res.status(200).json({
+		status: true,
+		total: result.length,
+		items: result});
+	}).catch(err => {res.status(401).json({"message": "error"})});
 })
-
-app.get("/api/application", (req, res) => {
-	var dataSet = [];
-	apps.find().then(result => {
-		for(let i = 0; i < result.length;i++){
-			dataSet.push([result[i]._id, result[i].type, result[i].name, result[i].meta.platform]);
-		}
-		res.json({
-			result: dataSet
-		});
-	}).catch(err => {
-		res.json({"message": "Error"});
-	});
-});
-
 app.get("/api/application/:applicationID", (req, res) => {
 	var appId = req.params.applicationID;
 	apps.findById(appId).then(result => {
-		res.json(result);
+		res.status(200).json(result);
 		}).catch(err => {
-			res.json({"message": "Error"});
+			res.status(404).json({"message": "Error"});
 	});
 });
 
