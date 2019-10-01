@@ -1,3 +1,3 @@
 # INNOVIC-assigment
-SPARK Node.js Engineer assigment
+ Node.js Engineer assigment
 
