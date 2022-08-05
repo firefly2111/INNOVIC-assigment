@@ -24,7 +24,7 @@
     "fs": "0.0.1-security",
     "mongo": "^0.1.0",
     "mongodb": "^3.2.3",
-    "mongoose": "^5.4.22",
+    "mongoose": "^5.7.5",
     "nodemon": "^1.18.10"
   }
 }
